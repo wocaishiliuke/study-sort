@@ -6,8 +6,8 @@ package com.baicai.sort;
 public class Sort {
 
     public static void main(String[] args) {
-        //int[] arr = {3,51,34,7,53,89,6,5,21,17,14,108,8,46,91,28,7,21};
-        int[] arr = {9,3,4,5,46,8,7,21};
+        int[] arr = {3,51,34,7,53,89,6,5,21,17,14,108,8,46,91,28,7,21};
+        //int[] arr = {9,3,4,5,46,8,7,21};
 
         //1.插入排序
         //insertionSort(arr);
@@ -26,6 +26,7 @@ public class Sort {
         //3.冒泡排序
         //bubbleSort(arr);
         //betterBubbleSort(arr);
+        //bestBubbleSort(arr);
 
         //4.快速排序
         quickSort(arr, 0, arr.length - 1);
@@ -66,23 +67,63 @@ public class Sort {
             //不能用arr[right]<pivot，因为还有可能是left=right的原因跳出循环
             //交换前基准=arr[left]，交换后基准=arr[right]，比其小的放在了其左边（arr[left]）
             if (left < right ) {
-                temp = arr[left];
-                arr[left] = arr[right];
-                arr[right] = temp;
+                temp = arr[left]; arr[left] = arr[right]; arr[right] = temp;
                 left++;
             }
 
             //从左向右扫描
             while (left < right && arr[left] <= arr[right]) left++;
             if (left < right) {
-                temp = arr[left];
-                arr[left] = arr[right];
-                arr[right] = temp;
+                temp = arr[left]; arr[left] = arr[right]; arr[right] = temp;
                 right--;
             }
         }
         //此时left=right，就是基准的位置
         return left;
+    }
+
+    /**
+     * 3.冒泡排序(优化2)最强版
+     * @param arr
+     * @return
+     */
+    private static int[] bestBubbleSort(int[] arr) {
+        if (arr == null || arr.length <= 1) return arr;
+        int temp;
+        boolean flag;
+        int lastExchangeIndexLeft = 0;                  //上次从右向左扫描中，最后一次发生交换的位置
+        int lastExchangeIndexRight = arr.length - 1;    //上次从左向右扫描中，最后一次发生交换的位置
+        int left = 0;                                   //无序区左起始索引
+        int right = arr.length - 1;                     //无序区右终止索引
+        while (left < right) {
+            //下沉，从左向右扫描，将无序区的最大值，拼接到右侧有序区
+            flag = false;
+            for (int i = left; i < right; i++) {
+                if (arr[i] > arr[i + 1]) {
+                    temp = arr[i];
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = temp;
+                    flag = true;
+                    lastExchangeIndexRight = i;
+                }
+            }
+            if (!flag) return arr;
+            right = lastExchangeIndexRight;             //收紧无序区的终止索引
+            //上浮
+            flag = false;
+            for (int j = right; j > left; j--) {
+                if (arr[j] < arr[j - 1]) {
+                    temp = arr[j];
+                    arr[j] = arr[j - 1];
+                    arr[j - 1] = temp;
+                    flag = true;
+                    lastExchangeIndexLeft = j;
+                }
+            }
+            if (!flag) return arr;
+            left = lastExchangeIndexLeft;               //收紧无序区的起始索引
+        }
+        return arr;
     }
 
     /**
@@ -94,9 +135,9 @@ public class Sort {
         if (arr == null || arr.length <= 1) return arr;
         int temp;
         boolean flag;
-        int lastExchangeIndex = 0;                      //初始值只为了求第一趟开始前的无序区开始索引
-        for (int i = 1; i < arr.length; i++) {          //第i趟冒泡,共n-1趟
-            flag = false;                               //每趟都要重置为false
+        int lastExchangeIndex = 0;                  //初始值只为了求第一趟开始前的无序区开始索引
+        for (int i = 1; i < arr.length; i++) {      //第i趟冒泡,最多n-1趟,后几趟如果没有交换会直接return的，只会进行1次无交换的扫描
+            flag = false;                           //每趟都要重置为false
             //第i趟开始前，无序区的起始索引
             int unorderedBeginIndex = (i - 1 >= lastExchangeIndex) ? i - 1 : lastExchangeIndex;
             for (int j = arr.length - 1; j > unorderedBeginIndex; j--) {
@@ -105,11 +146,11 @@ public class Sort {
                     temp = arr[j - 1];
                     arr[j - 1] = arr[j];
                     arr[j] = temp;
-                    flag = true;                        //有交换就置为true
+                    flag = true;                    //有交换就置为true
                     lastExchangeIndex = j;
                 }
             }
-            if (!flag) return arr;                      //没有交换就直接终止整个排序
+            if (!flag) return arr;                  //没有交换就直接终止整个排序
         }
         return arr;
     }
